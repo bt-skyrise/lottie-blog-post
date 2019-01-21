@@ -1,0 +1,6 @@
+framework module Pods_LottieSkyriseLoaderExample {
+  umbrella header "Pods-LottieSkyriseLoaderExample-umbrella.h"
+
+  export *
+  module * { export * }
+}

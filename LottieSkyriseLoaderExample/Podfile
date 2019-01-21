@@ -1,0 +1,4 @@
+target 'LottieSkyriseLoaderExample' do
+  use_frameworks!
+  pod 'lottie-ios'
+end
