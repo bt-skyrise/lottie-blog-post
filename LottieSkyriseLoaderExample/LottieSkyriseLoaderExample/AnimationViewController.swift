@@ -45,13 +45,13 @@ final class AnimationViewController: UIViewController {
 extension AnimationViewController: URLSessionDownloadDelegate {
 
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        DispatchQueue.main.async { [weak self] in
-            if let data = try? Data(contentsOf: location), let image = UIImage(data: data) {
-                self?.setImageWithAnimation(image)
-            }
-            self?.loaderAnimationView.pause()
-            self?.loaderAnimationView.loopAnimation = false
-            self?.loaderAnimationView.play(toProgress: 1) { (_) in
+        if let data = try? Data(contentsOf: location), let image = UIImage(data: data) {
+            setImageWithAnimation(image)
+        }
+        DispatchQueue.main.async {
+            self.loaderAnimationView.pause()
+            self.loaderAnimationView.loopAnimation = false
+            self.loaderAnimationView.play(toProgress: 1) { [weak self] (_) in
                 self?.loaderAnimationView.loopAnimation = true
             }
         }
@@ -70,9 +70,11 @@ extension AnimationViewController: URLSessionDownloadDelegate {
 private extension AnimationViewController {
 
     func setImageWithAnimation(_ image: UIImage?) {
-        UIView.transition(with: imageView, duration: 0.3, options: .transitionCrossDissolve, animations: { [weak self] in
-            self?.imageView.image = image
-        })
+        DispatchQueue.main.async {
+            UIView.transition(with: self.imageView, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                self.imageView.image = image
+            })
+        }
     }
 
 }
@@ -103,10 +105,9 @@ private extension AnimationViewController {
         progressAnimationView.translatesAutoresizingMaskIntoConstraints = false
         downloadButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            imageView.topAnchor.constraint(equalTo: view.topAnchor),
             imageView.leftAnchor.constraint(equalTo: view.leftAnchor),
             imageView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
 
             loaderLabel.centerXAnchor.constraint(equalTo: loaderAnimationView.centerXAnchor),
             loaderLabel.bottomAnchor.constraint(equalTo: loaderAnimationView.topAnchor, constant: 45),
@@ -120,11 +121,13 @@ private extension AnimationViewController {
             progressAnimationView.rightAnchor.constraint(equalTo: downloadButton.rightAnchor, constant: 30),
             progressAnimationView.bottomAnchor.constraint(equalTo: loaderAnimationView.bottomAnchor),
 
+            imageView.bottomAnchor.constraint(equalTo: loaderLabel.topAnchor, constant: -30),
+
             downloadButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 30),
             downloadButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -30),
             downloadButton.heightAnchor.constraint(equalToConstant: 50),
             downloadButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -70),
-            downloadButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            downloadButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
 
